@@ -10,13 +10,12 @@ import 'package:pet/model/err_response.dart';
 import 'package:pet/model/refresh.dart';
 
 class WebApi {
-  static const baseUrl = "https://pbh-app.herokuapp.com/api/";
+  static const baseUrl = "https://pbh-app.herokuapp.com/";
 
-  static String rqLogin = "/token";
-  static String rqRegister = "/jwtauth/register/";
-  static String rqSocial = "/social";
-  static String rqLogout = "/logout";
-  static String rqForgot = "/forgot/password";
+  static String rqLogin = "api/token/";
+  static String rqRegister = "api/jwtauth/register/";
+  static String rqGetEvents = "pets/api/v2/pet_events/";
+  static String addPet = "pets/api/v2/pets/";
   static String rqBusinessPhoto = "/business/photo";
   static String rqBusiness = "/business";
   static String rqBusinessMe = "/business/me";
@@ -48,28 +47,28 @@ class WebApi {
     String contentTypeHeader;
     String authorizationHeader = 'Bearer ' + Injector.accessToken;
 
-    if (type == 1) {
+    if (type == Const.get) {
       print("GET or POST method type 1 api call");
       acceptHeader = 'application/json';
-    } else if (type == 2) {
+    } else if (type == Const.delete) {
       print("DELETE method type 2 api call");
       acceptHeader = 'application/json';
-    } else if (type == 3) {
+    } else if (type == Const.put) {
       print("PUT method type 3 api call");
       acceptHeader = 'application/json';
       contentTypeHeader = 'application/json';
-    } else if (type == 4) {
+    } else if (type == Const.postWithForm) {
       print("post with access token method type 4 api call");
       acceptHeader = 'application/json';
       contentTypeHeader = 'multipart/form-data';
-    } else if (type == 5) {
+    } else if (type == Const.getReqNotToken) {
       print("GET method type 5 api call");
       acceptHeader = 'application/json';
-    } else if (type == 0 || type == 6) {
+    } else if (type == Const.post || type == Const.postRefreshToken) {
       print("POST method type 0 api call");
       acceptHeader = 'application/json';
-      contentTypeHeader = 'multipart/form-data';
-      authorizationHeader = "";
+      contentTypeHeader = 'application/json';
+//      authorizationHeader = "";
     }
 
     headers = {
@@ -89,41 +88,44 @@ class WebApi {
     return dio;
   }
 
-  Future<BaseResponse> callAPI(int requestMethod, String apiReq,
-      Map<String, dynamic> jsonMap, String token) async {
+  Future<dynamic> callAPI(
+    int requestMethod,
+    String apiReq,
+    Map<String, dynamic> jsonMap,
+  ) async {
     initDio(apiReq, requestMethod);
     print("request_" + apiReq);
     print("request_map_  " + jsonMap.toString());
     try {
-      BaseResponse baseResponse;
+      var baseResponse;
 
       if (requestMethod == Const.get || requestMethod == Const.getReqNotToken) {
         await dio.get("").then((response) {
-          baseResponse = BaseResponse.fromJson(response.data);
+          baseResponse = response.data;
         }).catchError((e) {
           handleException(e, requestMethod, apiReq, jsonMap);
         });
       } else if (requestMethod == Const.delete) {
         await dio.delete("").then((response) {
-          baseResponse = BaseResponse.fromJson(response.data);
+          baseResponse = response.data;
         }).catchError((e) {
           handleException(e, requestMethod, apiReq, jsonMap);
         });
       } else if (requestMethod == Const.put) {
         await dio.put("", data: jsonMap).then((response) {
-          baseResponse = BaseResponse.fromJson(response.data);
+          baseResponse = response.data;
         }).catchError((e) async {
           handleException(e, requestMethod, apiReq, jsonMap);
         });
       } else {
         await dio.post("", data: json.encode(jsonMap)).then((response) {
-          baseResponse = BaseResponse.fromJson(response.data);
+          baseResponse = response.data;
         }).catchError((e) {
           handleException(e, requestMethod, apiReq, jsonMap);
         });
       }
 
-      print(apiReq + "_" + baseResponse.toJson().toString());
+      print(apiReq + "_" + baseResponse.toString());
 
       return baseResponse;
     } catch (e) {
@@ -157,10 +159,9 @@ class WebApi {
 
   initDioImg(String apiReq, String token) {
     String acceptHeader = 'application/json';
-    String authorizationHeader = 'Bearer ' + token;
+    String authorizationHeader = 'Bearer ' + Injector.accessToken;
     String contentTypeHeader = 'multipart/form-data';
     print("contentTypeHeader " + acceptHeader);
-    print("accessToken " + authorizationHeader);
     print("accessToken " + authorizationHeader);
     var headers = {
       HttpHeaders.acceptHeader: acceptHeader,
@@ -294,18 +295,34 @@ class WebApi {
     BaseResponse baseResponse = BaseResponse.fromJson(e.response.data);
 
     if (e.response.statusCode == HttpStatus.unauthorized) {
-      RefreshTokenRequest rq = RefreshTokenRequest();
-      rq.refresh = Injector.signInResponse.refresh;
-      var baseResponse =
-          await refreshToken(Const.post, WebApi.rqRefreshToken, rq.toJson());
-      if (baseResponse != null) {
-        initDio(apiReq, requestMethod);
-        callAPI(requestMethod, apiReq, jsonMap, Injector.accessToken);
-      } else {
-        Utils.showToast(baseResponse.message);
+      if (apiReq == WebApi.rqRegister || apiReq == WebApi.rqLogin)
+        Utils.showToast(e.response.data['detail']);
+      else {
+        RefreshTokenRequest rq = RefreshTokenRequest();
+        rq.refresh = Injector.signInResponse.refresh;
+        var baseResponse =
+            await refreshToken(Const.post, WebApi.rqRefreshToken, rq.toJson());
+        if (baseResponse != null) {
+          initDio(apiReq, requestMethod);
+          callAPI(requestMethod, apiReq, jsonMap);
+        } else {
+          Utils.showToast(baseResponse.message);
+        }
       }
-    } else {
-      Utils.showToast(baseResponse.message);
+    } else if (e.response.statusCode == HttpStatus.badRequest) {
+      print(e.response.data);
+
+      if (apiReq == WebApi.rqRegister && e.response.data['username'] != null)
+        Utils.showToast(e.response.data['username'][0]);
+      else if (apiReq == WebApi.rqRegister && e.response.data['email'] != null)
+        Utils.showToast(e.response.data['email']);
+      else {
+        Utils.showToast("Something went wrong");
+      }
+    } else if (e.response.statusCode == HttpStatus.unauthorized) {
+      print(e.response.data);
+
+      Utils.showToast(e.response.data['detail']);
     }
 
     return baseResponse;

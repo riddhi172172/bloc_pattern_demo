@@ -1,19 +1,58 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:async';
+
+import 'package:pet/bloc/validator.dart';
+import 'package:pet/helper/constant.dart';
+import 'package:pet/model/login.dart';
+import 'package:pet/model/register.dart';
+import 'package:pet/webapi/web_api.dart';
 import 'package:rxdart/rxdart.dart';
 
-final localeBloc = LocaleBloc();
+import 'auth_bloc.dart';
 
-class LocaleBloc {
-  final _assignLocaleSubject = PublishSubject<Locale>();
+class LoginBloc extends Validators {
+  final BehaviorSubject _emailController = BehaviorSubject<String>();
+  final BehaviorSubject _passwordController = BehaviorSubject<String>();
+  final PublishSubject _loadingData = PublishSubject<bool>();
 
-  Observable<Locale> get locale => _assignLocaleSubject.stream;
+  Function(String) get changeEmail => _emailController.sink.add;
 
-  setLocale(int index) async {
-    _assignLocaleSubject.sink.add(Locale('en', ''));
-    return _assignLocaleSubject.stream.distinct();
+  Function(String) get changePassword => _passwordController.sink.add;
+
+  Stream<String> get email => _emailController.stream.transform(validateEmail);
+
+  Stream<String> get password =>
+      _passwordController.stream.transform(validatePassword);
+
+  Stream<bool> get submitValid =>
+      Observable.combineLatest2(email, password, (email, password) => true);
+
+  Observable<bool> get loading => _loadingData.stream;
+
+  void submit() {
+    final validEmail = _emailController.value;
+    final validPassword = _passwordController.value;
+    _loadingData.sink.add(true);
+    login(validEmail, validPassword);
   }
 
-  dispose() {
-    _assignLocaleSubject.close();
+  login(String email, String password) async {
+    try {
+      var data = await WebApi().callAPI(Const.post, WebApi.rqLogin,
+          SignInRequest(username: email, password: password).toJson());
+      _loadingData.sink.add(false);
+      SignInResponse signInResponse = SignInResponse.fromJson(data);
+      authBloc.openSession(signInResponse.access, signInResponse.refresh);
+    } catch (e) {
+      print(e);
+      _loadingData.sink.add(false);
+    }
+
+    _loadingData.sink.add(false);
+  }
+
+  void dispose() {
+    _emailController.close();
+    _passwordController.close();
+    _loadingData.close();
   }
 }

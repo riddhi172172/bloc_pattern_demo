@@ -8,7 +8,8 @@ class Const {
   static var delete              =  2;
   static var put                 =  3;
   static var postWithAccess      =  4;
-  static var getReqNotToken      =  5;
+  static var postWithForm     =  7;
+    static var getReqNotToken      =  5;
   static var postRefreshToken    =  6;
   static var typeCamera          = 101;
   static var typeGallery         = 102;
