@@ -1,4 +1,3 @@
-
 import 'package:pet/helper/constant.dart';
 import 'package:pet/helper/utils.dart';
 import 'package:pet/model/get_event.dart';
@@ -16,8 +15,7 @@ class GetEventsBloc {
     bool isInternetConnected = await Utils.isInternetConnected();
     List<PetEvent> arrQuestions = List();
     if (isInternetConnected) {
-      dynamic data =
-          await WebApi().callAPI(Const.get, WebApi.rqGetEvents,{});
+      dynamic data = await WebApi().callAPI(Const.get, WebApi.rqGetEvents, {});
 
       GetEventResponse getEventResponse = GetEventResponse.fromJson(data);
 
@@ -26,8 +24,10 @@ class GetEventsBloc {
     }
   }
 
-  updateQuestions(List<PetEvent> arrQuestions) async {
-    _getEventSubject.sink.add(arrQuestions);
+  addEvent(PetEvent event) async {
+    List<PetEvent> arrEvents = List();
+    arrEvents.add(event);
+    _getEventSubject.sink.add(arrEvents);
   }
 
   dispose() {

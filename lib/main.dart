@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         stream: authBloc.isSessionValid,
         builder: (context, AsyncSnapshot<bool> snapshot) {
           if (snapshot.hasData && snapshot.data) {
-            return HomePage();
+            return Injector.petData!=null?HomePage():AddPetPhoto();
           }
           return LoginPage();
         });

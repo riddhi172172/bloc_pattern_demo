@@ -18,7 +18,7 @@ class LoginBloc extends Validators {
 
   Function(String) get changePassword => _passwordController.sink.add;
 
-  Stream<String> get email => _emailController.stream.transform(validateEmail);
+  Stream<String> get email => _emailController.stream.transform(validateUsernmae);
 
   Stream<String> get password =>
       _passwordController.stream.transform(validatePassword);

@@ -2,7 +2,7 @@ class GetPet {
   int count;
   Null next;
   Null previous;
-  List<Results> results;
+  List<PetData> results;
 
   GetPet({this.count, this.next, this.previous, this.results});
 
@@ -11,9 +11,9 @@ class GetPet {
     next = json['next'];
     previous = json['previous'];
     if (json['results'] != null) {
-      results = new List<Results>();
+      results = new List<PetData>();
       json['results'].forEach((v) {
-        results.add(new Results.fromJson(v));
+        results.add(new PetData.fromJson(v));
       });
     }
   }
@@ -30,7 +30,7 @@ class GetPet {
   }
 }
 
-class Results {
+class PetData {
   int id;
   String speciesName;
   String name;
@@ -38,7 +38,7 @@ class Results {
   String petImage;
   int belongsTo;
 
-  Results(
+  PetData(
       {this.id,
         this.speciesName,
         this.name,
@@ -46,7 +46,7 @@ class Results {
         this.petImage,
         this.belongsTo});
 
-  Results.fromJson(Map<String, dynamic> json) {
+  PetData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     speciesName = json['species_name'];
     name = json['name'];

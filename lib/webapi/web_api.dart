@@ -16,6 +16,7 @@ class WebApi {
   static String rqRegister = "api/jwtauth/register/";
   static String rqGetEvents = "pets/api/v2/pet_events/";
   static String addPet = "pets/api/v2/pets/";
+  static String addEvent = "/pets/api/v2/pet_events/";
   static String rqBusinessPhoto = "/business/photo";
   static String rqBusiness = "/business";
   static String rqBusinessMe = "/business/me";
@@ -60,7 +61,7 @@ class WebApi {
     } else if (type == Const.postWithForm) {
       print("post with access token method type 4 api call");
       acceptHeader = 'application/json';
-      contentTypeHeader = 'multipart/form-data';
+//      contentTypeHeader = 'multipart/form-data';
     } else if (type == Const.getReqNotToken) {
       print("GET method type 5 api call");
       acceptHeader = 'application/json';
@@ -157,7 +158,7 @@ class WebApi {
     }
   }
 
-  initDioImg(String apiReq, String token) {
+  initDioImg(String apiReq) {
     String acceptHeader = 'application/json';
     String authorizationHeader = 'Bearer ' + Injector.accessToken;
     String contentTypeHeader = 'multipart/form-data';
@@ -177,83 +178,37 @@ class WebApi {
     return dio;
   }
 
-  Future<FormData> uploadImage(List<File> file) async {
+  Future<FormData> uploadImage(File file, String name) async {
     FormData formData = new FormData();
 
-    for (int i = 0; i < file.length; i++) {
-      String fileName = file[i].path.split('/').last;
-      formData = FormData.fromMap({
-        "photos[]":
-            await MultipartFile.fromFile(file[i].path, filename: fileName),
-      });
-    }
+    String fileName = file.path.split('/').last;
+    formData = FormData.fromMap({
+      "name": name,
+      "species": 1,
+      "pet_image": await MultipartFile.fromFile(file.path, filename: fileName),
+    });
     return formData;
   }
 
-//  Future<dynamic> uploadImageProduct(
-//      String apiReq, AddProductRequest rq, List<File> files) async {
-//    initDio(apiReq, Const.postWithAccess);
-//
-//    FormData formData;
-//
-//    formData = FormData.fromMap({
-//      "product_id": rq.productId,
-//      "category": rq.category,
-//      "product_name": rq.productName,
-//      "description": rq.description,
-//      "price": rq.price,
-//      "per_quantity": rq.perQuantity
-//    });
-//
-//    for (int i = 0; i < files.length; i++) {
-//      String fileName = files[i].path.split('/').last;
-//
-//      formData.files.add(MapEntry("photos[]",
-//          await MultipartFile.fromFile(files[i].path, filename: fileName)));
-//    }
-//
-//    BaseResponse _response;
-//    await dio.post("", data: formData).then((response) {
-//      _response = BaseResponse.fromJson(response.data);
-//    }).catchError((e) {
-//      _response = BaseResponse.fromJson(e.response.data);
-//      Utils.showToast(_response.message);
-//    });
-//    print(_response);
-//
-//    return _response;
-//  }
+  Future<FormData> uploadEvent(File file, String comment) async {
+    FormData formData = new FormData();
 
-  Future<BaseResponse> editProfile(String apiReq, File files) async {
-    initDio(apiReq, Const.postWithAccess);
-
-    FormData formData;
-    String fileName = files.path.split('/').last;
-
-    formData = FormData.fromMap({"firstname": "", "lastname": ""});
-
-    formData.files.add(MapEntry("profile",
-        await MultipartFile.fromFile(files.path, filename: fileName)));
-
-    BaseResponse _response;
-    await dio.post("", data: formData).then((response) {
-      _response = BaseResponse.fromJson(response.data);
-    }).catchError((e) {
-      _response = BaseResponse.fromJson(e.response.data);
-      Utils.showToast(_response.message);
+    String fileName = file.path.split('/').last;
+    formData = FormData.fromMap({
+      "event_type": 2,
+      "comment": comment,
+      "pet": 1,
+      "event_image": await MultipartFile.fromFile(file.path, filename: fileName),
     });
-    print(_response);
-
-    return _response;
+    return formData;
   }
 
-  Future<BaseResponse> uploadImgApi(
-      String apiReq, String token, List<File> images) async {
-    initDioImg(apiReq, token);
+  Future<dynamic> addPetData(String apiReq, File images, String name) async {
+    initDioImg(apiReq);
     try {
       var response;
 
-      await uploadImage(images).then((formData) async {
+      await uploadImage(images, name).then((formData) async {
         response = await dio.post("", data: formData).catchError((e) {
           Utils.showToast(apiReq + "_" + e.toString());
           return null;
@@ -261,20 +216,35 @@ class WebApi {
       });
 
       print(apiReq + "_" + response?.data.toString());
-      if (response.statusCode == 200) {
-        BaseResponse _response = BaseResponse.fromJson(response.data);
+      if (response.statusCode == HttpStatus.created) {
+        return response.data;
+      } else {
+        Utils.showToast(response.message);
+      }
+      return null;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
 
-        if (_response != null) {
-          if (_response.success) {
-            return _response;
-          } else {
-            Utils.showToast(_response.message ?? "Please try again later.");
-            return null;
-          }
-        } else {
-          Utils.showToast("Please try again later");
+  Future<dynamic> addEventData(String apiReq, File images, String name) async {
+    initDioImg(apiReq);
+    try {
+      var response;
+
+      await uploadImage(images, name).then((formData) async {
+        response = await dio.post("", data: formData).catchError((e) {
+          Utils.showToast(apiReq + "_" + e.toString());
           return null;
-        }
+        });
+      });
+
+      print(apiReq + "_" + response?.data.toString());
+      if (response.statusCode == HttpStatus.created) {
+        return response.data;
+      } else {
+        Utils.showToast(response.message);
       }
       return null;
     } catch (e) {

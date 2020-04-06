@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:pet/bloc/validator.dart';
 import 'package:pet/helper/constant.dart';
+import 'package:pet/injection/dependency_injection.dart';
 import 'package:pet/model/register.dart';
 import 'package:pet/webapi/web_api.dart';
 import 'package:rxdart/rxdart.dart';
@@ -60,7 +61,11 @@ class RegisterBloc extends Validators {
               .toJson());
       _loadingData.sink.add(false);
       SignUpResponse signUpResponse = SignUpResponse.fromJson(data);
-      authBloc.openSession(null, signUpResponse.refresh);
+
+      await WebApi().refreshToken(Const.post, WebApi.rqRefreshToken,
+          {'refresh': Injector.refreshToken}).then((data){
+
+      });
     } catch (e) {
       print(e);
       _loadingData.sink.add(false);

@@ -27,15 +27,12 @@ class AuthorizationBloc {
     if (token != null) {
       await Injector.prefs.setString(PrefKeys.accessToken, token);
       Injector.accessToken = token;
-    } else {
-      await Injector.prefs.setString(PrefKeys.accessToken, refreshToken);
-      Injector.accessToken = refreshToken;
     }
     if (refreshToken != null) {
       await Injector.prefs.setString(PrefKeys.refreshToken, refreshToken);
       Injector.refreshToken = refreshToken;
     }
-    _tokenString = token ?? refreshToken;
+    _tokenString = token ;
     _isSessionValid.sink.add(true);
   }
 

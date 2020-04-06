@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pet/bloc/get_events_bloc.dart';
+import 'package:pet/helper/res.dart';
 import 'package:pet/helper/utils.dart';
+import 'package:pet/injection/dependency_injection.dart';
 import 'package:pet/model/get_event.dart';
 
 class EventPage extends StatefulWidget {
@@ -15,14 +17,13 @@ class _EventPageState extends State<EventPage> {
   String imagePath = "";
   List<PetEvent> arrEvents = List();
 
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
+    imagePath = Injector.petData.petImage;
     getData();
-
   }
 
   @override
@@ -30,14 +31,19 @@ class _EventPageState extends State<EventPage> {
     return Scaffold(
       body: Column(
         children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(top: 30, left: 30, right: 10, bottom: 10),
-            height: 140,
-            width: 140,
-            decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                image: DecorationImage(image: imageShow(), fit: BoxFit.cover)),
+          InkResponse(
+            child: Container(
+              margin: EdgeInsets.only(top: 30, left: 30, right: 10, bottom: 10),
+              height: 140,
+              width: 140,
+              decoration: BoxDecoration(
+                  color: Colors.grey,
+                  shape: BoxShape.circle,
+                  image:
+                      DecorationImage(image: imageShow(), fit: BoxFit.cover)),
+            ),
           ),
+          Text(Injector.petData.name),
           showItems(context)
         ],
       ),
@@ -64,12 +70,12 @@ class _EventPageState extends State<EventPage> {
   }
 
   showData(List<PetEvent> data) {
-    arrEvents = data;
+    arrEvents.addAll(data);
 
     return ListView.builder(
       itemCount: arrEvents.length,
       itemBuilder: (BuildContext context, int index) {
-        return showItem(index);
+        return showItem(arrEvents[index]);
       },
     );
   }
@@ -82,15 +88,29 @@ class _EventPageState extends State<EventPage> {
         : AssetImage(Utils.getAssetsImg("profile"));
   }
 
-  showItem(int index) {
-    return Container(
-      child: Column(
-        children: <Widget>[Text("Hello"), Text("This is the event")],
+  showItem(PetEvent petEvent) {
+    return InkResponse(
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: [BoxShadow(color: ColorRes.greyText, blurRadius: 1.5)],
+          color: ColorRes.white,
+        ),
+        margin: EdgeInsets.only(
+            left: Utils.getDeviceWidth(context) / 15,
+            right: Utils.getDeviceWidth(context) / 15,
+            top: Utils.getDeviceWidth(context) / 25),
+        child: ListTile(
+          leading: petEvent.eventImage!=null? Image(image:NetworkImage(petEvent.eventImage),):FlutterLogo(size: 72.0),
+          title: Text(petEvent.comment ?? ""),
+          subtitle: Text(petEvent.comment ?? ""),
+
+          isThreeLine: true,
+        ),
       ),
     );
   }
 
-  void getData() async{
+  void getData() async {
     await getEventBloc.getEvents();
   }
 }

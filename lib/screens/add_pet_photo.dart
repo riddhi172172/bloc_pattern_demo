@@ -8,12 +8,12 @@ import 'package:pet/screens/add_pet_name.dart';
 import '../helper/res.dart';
 import '../helper/utils.dart';
 
-class AddPet extends StatefulWidget {
+class AddPetPhoto extends StatefulWidget {
   @override
-  _AddPetState createState() => _AddPetState();
+  _AddPetPhotoState createState() => _AddPetPhotoState();
 }
 
-class _AddPetState extends State<AddPet> {
+class _AddPetPhotoState extends State<AddPetPhoto> {
   String imagePath;
 
   @override
@@ -69,13 +69,17 @@ class _AddPetState extends State<AddPet> {
                 textAlign: TextAlign.center,
               ),
               onTap: () {
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddPetName()),
-                );
-
-//                  updateProfile();
+                if (imagePath == null || imagePath.isEmpty) {
+                  Utils.showToast("Please select photo");
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AddPetName(
+                              photo: imagePath,
+                            )),
+                  );
+                }
               },
             ),
           )
