@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pet/screens/add_pet_name.dart';
 import 'package:pet/screens/add_pet_photo.dart';
 import 'package:pet/screens/home.dart';
 import 'package:pet/screens/login.dart';
@@ -25,6 +26,10 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
+        routes: <String, WidgetBuilder>{
+          '/addpet': (BuildContext context) => AddPetName(),
+          '/register': (BuildContext context) => RegisterPage(),
+        },
         home: createContent());
   }
 

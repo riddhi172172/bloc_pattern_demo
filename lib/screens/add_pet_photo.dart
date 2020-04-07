@@ -22,70 +22,74 @@ class _AddPetPhotoState extends State<AddPetPhoto> {
       appBar: AppBar(
         title: Text("Add Pet"),
       ),
-      body: Column(
-        children: <Widget>[
-          InkResponse(
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  margin:
-                      EdgeInsets.only(top: 30, left: 30, right: 10, bottom: 10),
-                  height: 140,
-                  width: 140,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                          image: imageShow(), fit: BoxFit.cover)),
-                ),
-                Positioned(
-                  right: 10,
-                  bottom: 20,
-                  child: InkResponse(
-                    child: Icon(Icons.add_a_photo),
-                    onTap: () {
-                      getImage();
-                    },
+      body: Container(
+        alignment: Alignment.center,
+        child: Column(
+          children: <Widget>[
+            InkResponse(
+              child: Stack(
+                children: <Widget>[
+                  Container(
+                    margin:
+                    EdgeInsets.only(top: 30, left: 30, right: 10, bottom: 10),
+                    height: 140,
+                    width: 140,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey,
+                        image: DecorationImage(
+                            image: imageShow(), fit: BoxFit.cover)),
                   ),
-                )
-              ],
-            ),
-            onTap: () {
-              getImage();
-            },
-          ),
-          Container(
-            height: 35,
-            width: 100,
-            margin: EdgeInsets.only(top: 20.0),
-            padding: EdgeInsets.only(top: 8.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-              color: ColorRes.black,
-            ),
-            child: InkResponse(
-              child: Text(
-                "NEXT",
-                style: TextStyle(color: ColorRes.white),
-                textAlign: TextAlign.center,
+                  Positioned(
+                    right: 10,
+                    bottom: 20,
+                    child: InkResponse(
+                      child: Icon(Icons.add_a_photo),
+                      onTap: () {
+                        getImage();
+                      },
+                    ),
+                  )
+                ],
               ),
               onTap: () {
-                if (imagePath == null || imagePath.isEmpty) {
-                  Utils.showToast("Please select photo");
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AddPetName(
-                              photo: imagePath,
-                            )),
-                  );
-                }
+                getImage();
               },
             ),
-          )
-        ],
+            Container(
+              height: 35,
+              width: 100,
+              margin: EdgeInsets.only(top: 20.0),
+              padding: EdgeInsets.only(top: 8.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+                color: ColorRes.black,
+              ),
+              child: InkResponse(
+                child: Text(
+                  "NEXT",
+                  style: TextStyle(color: ColorRes.white),
+                  textAlign: TextAlign.center,
+                ),
+                onTap: () {
+                  if (imagePath == null || imagePath.isEmpty) {
+                    Utils.showToast("Please select photo");
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddPetName(
+                            photo: imagePath,
+                          )),
+                    );
+                  }
+                },
+              ),
+            )
+          ],
 
 //        ),
+        ),
       ),
     );
   }

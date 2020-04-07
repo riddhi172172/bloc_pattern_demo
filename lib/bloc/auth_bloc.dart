@@ -23,21 +23,24 @@ class AuthorizationBloc {
     }
   }
 
-  void openSession(String token, String refreshToken) async {
-    if (token != null) {
-      await Injector.prefs.setString(PrefKeys.accessToken, token);
-      Injector.accessToken = token;
+  void openSession(String accessToken, String refreshToken) async {
+    if (accessToken != null) {
+      await Injector.prefs.setString(PrefKeys.accessToken, accessToken);
+      Injector.accessToken = accessToken;
     }
     if (refreshToken != null) {
       await Injector.prefs.setString(PrefKeys.refreshToken, refreshToken);
       Injector.refreshToken = refreshToken;
     }
-    _tokenString = token ;
+    _tokenString = accessToken;
     _isSessionValid.sink.add(true);
   }
 
   void closeSession() async {
-    Injector.prefs.remove(PrefKeys.accessToken);
+    await Injector.prefs.clear();
+    Injector.accessToken = null;
+    Injector.refreshToken = null;
+    Injector.petData = null;
     _isSessionValid.sink.add(false);
   }
 }

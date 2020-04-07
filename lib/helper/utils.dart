@@ -10,7 +10,6 @@ import 'package:shimmer/shimmer.dart';
 import 'constant.dart';
 
 class Utils {
-
   static double getDeviceWidth(BuildContext context) {
     return MediaQuery.of(context).size.width;
   }
@@ -24,7 +23,6 @@ class Utils {
   }
 
   static showToast(String message) {
-
     Fluttertoast.showToast(
         msg: message,
         toastLength: Toast.LENGTH_SHORT,
@@ -61,8 +59,9 @@ class Utils {
     return isConnected;
   }
 
-  static Future<File>  getImage(int type) async {
-    return await ImagePicker.pickImage(imageQuality: Const.imgQuality,
+  static Future<File> getImage(int type) async {
+    return await ImagePicker.pickImage(
+      imageQuality: Const.imgQuality,
       source:
           type == Const.typeCamera ? ImageSource.camera : ImageSource.gallery,
     );
@@ -130,6 +129,28 @@ class Utils {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  static showShimmerProfile() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      child: Shimmer.fromColors(
+        baseColor: ColorRes.lightGrey.withOpacity(0.5),
+        highlightColor: Colors.grey[100],
+        enabled: true,
+        child: Container(
+          margin:
+              EdgeInsets.only(top: 30, left: 30, right: 10, bottom: 10),
+          height: 140,
+          width: 140,
+          decoration: BoxDecoration(
+            color: Colors.grey,
+            shape: BoxShape.circle,
+          ),
+        ),
       ),
     );
   }

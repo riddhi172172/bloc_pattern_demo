@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:pet/bloc/auth_bloc.dart';
 import 'package:pet/helper/constant.dart';
 import 'package:pet/helper/utils.dart';
 import 'package:pet/injection/dependency_injection.dart';
@@ -14,9 +15,11 @@ class WebApi {
 
   static String rqLogin = "api/token/";
   static String rqRegister = "api/jwtauth/register/";
+  static String rqRefreshToken = "api/token/refresh/";
   static String rqGetEvents = "pets/api/v2/pet_events/";
   static String addPet = "pets/api/v2/pets/";
-  static String addEvent = "/pets/api/v2/pet_events/";
+  static String getPet = "pets/api/v2/pets/";
+  static String addEvent = "pets/api/v2/pet_events/";
   static String rqBusinessPhoto = "/business/photo";
   static String rqBusiness = "/business";
   static String rqBusinessMe = "/business/me";
@@ -34,7 +37,6 @@ class WebApi {
   static String verifyOtp = "/verify/otp";
   static String analytics = "​/analytics";
   static String userProfile = "/user/profile";
-  static String rqRefreshToken = "token/refresh/";
 
   static getRequest(String req, String data) {
     return {'apiRequest': req, 'data': data};
@@ -46,27 +48,24 @@ class WebApi {
     var headers;
     String acceptHeader;
     String contentTypeHeader;
-    String authorizationHeader = 'Bearer ' + Injector.accessToken;
+    String authorizationHeader =
+        Injector.accessToken != null ? 'Bearer ' + Injector.accessToken : null;
+
+//    print("accessToken " + authorizationHeader??"");
 
     if (type == Const.get) {
-      print("GET or POST method type 1 api call");
       acceptHeader = 'application/json';
     } else if (type == Const.delete) {
-      print("DELETE method type 2 api call");
       acceptHeader = 'application/json';
     } else if (type == Const.put) {
-      print("PUT method type 3 api call");
       acceptHeader = 'application/json';
       contentTypeHeader = 'application/json';
     } else if (type == Const.postWithForm) {
-      print("post with access token method type 4 api call");
       acceptHeader = 'application/json';
 //      contentTypeHeader = 'multipart/form-data';
     } else if (type == Const.getReqNotToken) {
-      print("GET method type 5 api call");
       acceptHeader = 'application/json';
     } else if (type == Const.post || type == Const.postRefreshToken) {
-      print("POST method type 0 api call");
       acceptHeader = 'application/json';
       contentTypeHeader = 'application/json';
 //      authorizationHeader = "";
@@ -135,27 +134,20 @@ class WebApi {
     }
   }
 
-  Future<dynamic> refreshToken(
+  Future<RefreshTokenResponse> refreshToken(
       int num, String apiReq, Map<String, dynamic> jsonMap) async {
     initDio(apiReq, num);
-    try {
-      await dio.post("", data: json.encode(jsonMap)).then((response) async {
-        if (response.statusCode == HttpStatus.ok) {
-          RefreshTokenResponse refreshTokenResponse =
-              RefreshTokenResponse.fromJson(response.data);
-
-          if (refreshTokenResponse != null) {
-            await Injector.updateAuthData(refreshTokenResponse.access);
-          }
-        }
-      }).catchError((e) {
-        ErrorResponse errorResponse = ErrorResponse.fromJson(e.response.data);
-        Utils.showToast(errorResponse.detail);
-      });
-    } catch (e) {
-      print(e);
+    RefreshTokenResponse refreshTokenResponse;
+    await dio.post("", data: json.encode(jsonMap)).then((response) {
+      if (response.statusCode == HttpStatus.ok) {
+        refreshTokenResponse = RefreshTokenResponse.fromJson(response.data);
+      }
+    }).catchError((e) {
+      ErrorResponse errorResponse = ErrorResponse.fromJson(e.response.data);
+      Utils.showToast(errorResponse.detail);
       return null;
-    }
+    });
+    return refreshTokenResponse;
   }
 
   initDioImg(String apiReq) {
@@ -197,8 +189,9 @@ class WebApi {
     formData = FormData.fromMap({
       "event_type": 2,
       "comment": comment,
-      "pet": 1,
-      "event_image": await MultipartFile.fromFile(file.path, filename: fileName),
+      "pet": Injector.petData.id,
+      "event_image":
+          await MultipartFile.fromFile(file.path, filename: fileName),
     });
     return formData;
   }
@@ -233,19 +226,22 @@ class WebApi {
     try {
       var response;
 
-      await uploadImage(images, name).then((formData) async {
+      await uploadEvent(images, name).then((formData) async {
         response = await dio.post("", data: formData).catchError((e) {
           Utils.showToast(apiReq + "_" + e.toString());
           return null;
         });
       });
 
-      print(apiReq + "_" + response?.data.toString());
-      if (response.statusCode == HttpStatus.created) {
-        return response.data;
-      } else {
-        Utils.showToast(response.message);
+      if (response != null) {
+        print(apiReq + "_" + response?.data.toString());
+        if (response.statusCode == HttpStatus.created) {
+          return response.data;
+        } else {
+          Utils.showToast(response.message);
+        }
       }
+
       return null;
     } catch (e) {
       print(e);
@@ -276,7 +272,7 @@ class WebApi {
           initDio(apiReq, requestMethod);
           callAPI(requestMethod, apiReq, jsonMap);
         } else {
-          Utils.showToast(baseResponse.message);
+          Utils.showToast("Something went wrong");
         }
       }
     } else if (e.response.statusCode == HttpStatus.badRequest) {

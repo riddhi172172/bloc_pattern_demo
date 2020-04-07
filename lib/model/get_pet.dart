@@ -1,12 +1,12 @@
-class GetPet {
+class GetPetResponse {
   int count;
-  Null next;
-  Null previous;
+  String next;
+  String previous;
   List<PetData> results;
 
-  GetPet({this.count, this.next, this.previous, this.results});
+  GetPetResponse({this.count, this.next, this.previous, this.results});
 
-  GetPet.fromJson(Map<String, dynamic> json) {
+  GetPetResponse.fromJson(Map<String, dynamic> json) {
     count = json['count'];
     next = json['next'];
     previous = json['previous'];

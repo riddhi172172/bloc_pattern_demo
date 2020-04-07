@@ -68,10 +68,7 @@ class _AddPetNameState extends State<AddPetName> {
 
                       Injector.petData = petData;
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
-                      );
+                      navigateToHome(context);
                     }
                   });
                 }
@@ -81,5 +78,14 @@ class _AddPetNameState extends State<AddPetName> {
         ],
       ),
     );
+  }
+
+  void navigateToHome(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(),
+        ),
+        ModalRoute.withName("/addpet"));
   }
 }

@@ -31,9 +31,9 @@ class _AddEventState extends State<AddEvent> {
                 children: <Widget>[
                   Container(
                     margin: EdgeInsets.only(
-                        top: 30, left: 30, right: 10, bottom: 10),
-                    height: 140,
-                    width: 140,
+                        top: 10, left: 30, right: 10, bottom: 10),
+                    height: 100,
+                    width: 100,
                     decoration: BoxDecoration(
                         color: Colors.grey,
                         shape: BoxShape.circle,
@@ -46,7 +46,7 @@ class _AddEventState extends State<AddEvent> {
                     child: InkResponse(
                       child: Icon(
                         Icons.add_a_photo,
-                        size: 35,
+                        size: 25,
                       ),
                       onTap: () {
                         getImage();
@@ -63,7 +63,7 @@ class _AddEventState extends State<AddEvent> {
               keyboardType: TextInputType.emailAddress,
               controller: nameController,
               decoration: InputDecoration(
-                labelText: "Event name",
+                labelText: "Comment",
                 hintText: "",
               ),
             ),
@@ -89,12 +89,12 @@ class _AddEventState extends State<AddEvent> {
                     if (nameController.value != null &&
                         nameController.value.text.toString().isNotEmpty) {
                       await WebApi()
-                          .addPetData(WebApi.addPet, File(imagePath),
+                          .addEventData(WebApi.addEvent, File(imagePath),
                               nameController.value.text.toString())
                           .then((data) async {
                         if (data != null) {
                           PetEvent petEvent = PetEvent.fromJson(data);
-                          getEventBloc.addEvent(petEvent);
+                          getEventBloc.getEvents();
                           Utils.showToast("Event added successfully");
                         }
                       });
@@ -102,6 +102,9 @@ class _AddEventState extends State<AddEvent> {
                   }
                 },
               ),
+            ),
+            Expanded(
+              child: Container(),
             )
           ],
         ),
