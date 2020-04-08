@@ -135,12 +135,18 @@ class WebApi {
   }
 
   Future<RefreshTokenResponse> refreshToken(
-      int num, String apiReq, Map<String, dynamic> jsonMap) async {
-    initDio(apiReq, num);
+      int requestMethod, String apiReq, Map<String, dynamic> jsonMap) async {
+    initDio(apiReq, requestMethod);
     RefreshTokenResponse refreshTokenResponse;
-    await dio.post("", data: json.encode(jsonMap)).then((response) {
+    await dio.post("", data: json.encode(jsonMap)).then((response) async {
       if (response.statusCode == HttpStatus.ok) {
         refreshTokenResponse = RefreshTokenResponse.fromJson(response.data);
+
+        await Injector.updateAuthData(refreshTokenResponse.access);
+
+        callAPI(requestMethod, apiReq, jsonMap);
+      } else {
+        Utils.showToast(response.statusMessage);
       }
     }).catchError((e) {
       ErrorResponse errorResponse = ErrorResponse.fromJson(e.response.data);

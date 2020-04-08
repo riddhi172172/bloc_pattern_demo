@@ -27,10 +27,10 @@ class Injector {
     getUserData();
   }
 
-  static updateAuthData(String token) async {
-    await Injector.prefs.setString(PrefKeys.accessToken, token);
+  static updateAuthData(String accessToken) async {
+    await Injector.prefs.setString(PrefKeys.accessToken, accessToken);
 
-    accessToken = token;
+    accessToken = accessToken;
   }
 
   static getUserData() {

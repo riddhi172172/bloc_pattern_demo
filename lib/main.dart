@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
         routes: <String, WidgetBuilder>{
           '/addpet': (BuildContext context) => AddPetName(),
           '/register': (BuildContext context) => RegisterPage(),
+          '/home': (BuildContext context) => HomePage(),
         },
         home: createContent());
   }

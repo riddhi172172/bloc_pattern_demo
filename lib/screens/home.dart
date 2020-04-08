@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pet/bloc/auth_bloc.dart';
 import 'package:pet/helper/res.dart';
 import 'package:pet/screens/add_event.dart';
+import 'package:pet/screens/login.dart';
 import 'package:pet/screens/show_event.dart';
 
 class HomePage extends StatefulWidget {
@@ -36,6 +37,15 @@ class _HomeState extends State<HomePage> {
             icon: Icon(Icons.subdirectory_arrow_right),
             onPressed: () {
               authBloc.closeSession();
+
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginPage(),
+                    ),
+                    ModalRoute.withName("/home"));
+
+
             },
           ),
         ],

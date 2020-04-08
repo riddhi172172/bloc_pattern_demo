@@ -168,10 +168,16 @@ class RegisterPageState extends State<RegisterPage> {
           .then((data) async {
         SignUpResponse signUpResponse = SignUpResponse.fromJson(data);
 
-        RefreshTokenRequest refreshTokenRequest =
-            RefreshTokenRequest(refresh: signUpResponse.refresh);
+//        RefreshTokenRequest refreshTokenRequest =
+//            RefreshTokenRequest(refresh: signUpResponse.refresh);
 
-        refreshToken(refreshTokenRequest);
+        print(jsonEncode(signUpResponse.toJson()));
+
+        if (signUpResponse != null)
+          Navigator.pop(context);
+        else {}
+
+//        refreshToken(refreshTokenRequest);
       }).catchError((e) {
         setState(() {
           isLoading = false;

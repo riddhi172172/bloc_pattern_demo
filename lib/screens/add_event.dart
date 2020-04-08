@@ -96,6 +96,11 @@ class _AddEventState extends State<AddEvent> {
                           PetEvent petEvent = PetEvent.fromJson(data);
                           getEventBloc.getEvents();
                           Utils.showToast("Event added successfully");
+                          nameController.text = "";
+                          imagePath = "";
+                          setState(() {
+
+                          });
                         }
                       });
                     }
