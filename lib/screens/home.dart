@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pet/bloc/auth_bloc.dart';
 import 'package:pet/helper/res.dart';
+import 'package:pet/injection/dependency_injection.dart';
 import 'package:pet/screens/add_event.dart';
 import 'package:pet/screens/add_pet_name.dart';
 import 'package:pet/screens/add_pet_photo.dart';
@@ -38,15 +39,19 @@ class _HomeState extends State<HomePage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.subdirectory_arrow_right),
-            onPressed: () {
+            onPressed: () async {
               authBloc.closeSession();
 
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginPage(),
-                  ),
-                  ModalRoute.withName("/home"));
+              await Injector.prefs.clear();
+              Injector.accessToken = null;
+              Injector.refreshToken = null;
+
+//              Navigator.pushAndRemoveUntil(
+//                  context,
+//                  MaterialPageRoute(
+//                    builder: (context) => LoginPage(),
+//                  ),
+//                  ModalRoute.withName("/home"));
             },
           ),
         ],

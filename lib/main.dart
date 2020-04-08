@@ -35,6 +35,13 @@ class MyApp extends StatelessWidget {
   }
 
   createContent() {
-    return Injector.accessToken!=null?HomePage():LoginPage();
+    return StreamBuilder<bool>(
+        stream: authBloc.isSessionValid,
+        builder: (context, AsyncSnapshot<bool> snapshot) {
+          if (snapshot.hasData && snapshot.data) {
+            return HomePage();
+          }
+          return LoginPage();
+        });
   }
 }
