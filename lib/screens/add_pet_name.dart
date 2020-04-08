@@ -20,97 +20,116 @@ class AddPetName extends StatefulWidget {
 
 class _AddPetNameState extends State<AddPetName> {
   String imagePath;
+  TextEditingController nameController = TextEditingController();
+  bool isLoading = false;
+
+  Widget loadingIndicator() => isLoading
+      ? Container(
+          child: CircularProgressIndicator(),
+        )
+      : Container();
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController nameController = TextEditingController();
-
     return Scaffold(
-//      appBar: AppBar(
-//        title: Text("Add pet"),
-//      ),
-      body: Column(
+      appBar: AppBar(
+        title: Text("Add pet"),
+      ),
+      body: Stack(
         children: <Widget>[
-          InkResponse(
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  margin:
-                      EdgeInsets.only(top: 30, left: 30, right: 10, bottom: 10),
-                  height: 140,
-                  width: 140,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey,
-                      image: DecorationImage(
-                          image: imageShow(), fit: BoxFit.cover)),
+          Column(
+            children: <Widget>[
+              InkResponse(
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(
+                          top: 30, left: 30, right: 10, bottom: 10),
+                      height: 140,
+                      width: 140,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey,
+                          image: DecorationImage(
+                              image: imageShow(), fit: BoxFit.cover)),
+                    ),
+                    Positioned(
+                      right: 10,
+                      bottom: 20,
+                      child: InkResponse(
+                        child: Icon(Icons.add_a_photo),
+                        onTap: () {
+                          getImage();
+                        },
+                      ),
+                    )
+                  ],
                 ),
-                Positioned(
-                  right: 10,
-                  bottom: 20,
-                  child: InkResponse(
-                    child: Icon(Icons.add_a_photo),
-                    onTap: () {
-                      getImage();
-                    },
-                  ),
-                )
-              ],
-            ),
-            onTap: () {
-              getImage();
-            },
-          ),
-          TextField(
-            keyboardType: TextInputType.emailAddress,
-            controller: nameController,
-            decoration: InputDecoration(
-              labelText: "Pet name",
-              hintText: "",
-            ),
-          ),
-          Container(
-            height: 35,
-            width: 100,
-            margin: EdgeInsets.only(top: 20.0),
-            padding: EdgeInsets.only(top: 8.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-              color: ColorRes.black,
-            ),
-            child: InkResponse(
-              child: Text(
-                "ADD",
-                style: TextStyle(color: ColorRes.white),
-                textAlign: TextAlign.center,
+                onTap: () {
+                  getImage();
+                },
               ),
-              onTap: () async {
-                if (nameController.value != null &&
-                    nameController.value.text.toString().isNotEmpty) {
-                  await WebApi()
-                      .addPetData(WebApi.addPet, File(imagePath),
-                          nameController.value.text.toString())
-                      .then((data) async {
-                    if (data != null) {
-                      PetData petData = PetData.fromJson(data);
+              TextField(
+                keyboardType: TextInputType.emailAddress,
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: "Pet name",
+                  hintText: "",
+                ),
+              ),
+              Container(
+                height: 35,
+                width: 100,
+                margin: EdgeInsets.only(top: 20.0),
+                padding: EdgeInsets.only(top: 8.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(5)),
+                  color: ColorRes.black,
+                ),
+                child: InkResponse(
+                  child: Text(
+                    "ADD",
+                    style: TextStyle(color: ColorRes.white),
+                    textAlign: TextAlign.center,
+                  ),
+                  onTap: () async {
+                    if (nameController.value != null &&
+                        nameController.value.text.toString().isNotEmpty) {
+                      setState(() {
+                        isLoading = true;
+                      });
 
-                      await Injector.prefs.setString(
-                          PrefKeys.petData, jsonEncode(petData.toJson()));
+                      await WebApi()
+                          .addPetData(WebApi.addPet, File(imagePath),
+                              nameController.value.text.toString())
+                          .then((data) async {
+                        if (data != null) {
+                          PetData petData = PetData.fromJson(data);
 
-                      Injector.petData = petData;
+                          await Injector.prefs.setString(
+                              PrefKeys.petData, jsonEncode(petData.toJson()));
 
-                      getPetBloc.getPet();
+                          Injector.petData = petData;
 
-                      Utils.showToast("Pet added successfully");
-                      nameController.text = "";
-                      imagePath = "";
-                      setState(() {});
+                          getPetBloc.getPet();
+
+                          Utils.showToast("Pet added successfully");
+
+                          Navigator.pop(context);
+                        }
+                      }).catchError((e) {
+                        Utils.showToast(e);
+                        setState(() {
+                          isLoading = false;
+                        });
+                      });
                     }
-                  });
-                }
-              },
-            ),
-          )
+                  },
+                ),
+              )
+            ],
+          ),
+          loadingIndicator()
         ],
       ),
     );

@@ -10,6 +10,8 @@ import 'package:pet/injection/dependency_injection.dart';
 import 'package:pet/model/get_event.dart';
 import 'package:pet/model/get_pet.dart';
 
+import 'add_pet_name.dart';
+
 class EventPage extends StatefulWidget {
   @override
   _EventPageState createState() => _EventPageState();
@@ -29,7 +31,36 @@ class _EventPageState extends State<EventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-        children: <Widget>[showItems(context)],
+        children: <Widget>[
+          StreamBuilder(
+              stream: getPetBloc.getPetDataOb,
+              builder: (context, AsyncSnapshot<List<PetData>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Utils.showShimmerProfile();
+                } else if (snapshot.connectionState == ConnectionState.active) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data.isNotEmpty)
+                      return showPet(snapshot?.data);
+                    else
+                      return   RaisedButton.icon(
+                        label: Text("Add Pet"),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AddPetName()),
+                          );
+                        },
+                        icon: Icon(Icons.add),
+                      );
+                  }
+                } else if (snapshot.hasError) {
+                  return Text(snapshot.error.toString());
+                }
+                return Container();
+              }),
+          showItems(context)
+        ],
       ),
     );
   }
@@ -83,7 +114,7 @@ class _EventPageState extends State<EventPage> {
         child: ListTile(
           leading: petEvent.eventImage != null
               ? Image(
-                  image: NetworkImage(petEvent.eventImage),width: 50,height: 50,fit: BoxFit.cover,
+                  image: NetworkImage(petEvent.eventImage),
                 )
               : FlutterLogo(size: 72.0),
           title: Text(petEvent.comment ?? ""),
@@ -95,7 +126,7 @@ class _EventPageState extends State<EventPage> {
   }
 
   void getData() async {
-//    await getPetBloc.getPet();
+    await getPetBloc.getPet();
     await getEventBloc.getEvents();
   }
 

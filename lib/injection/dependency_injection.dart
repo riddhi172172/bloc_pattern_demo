@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:pet/bloc/auth_bloc.dart';
 import 'package:pet/helper/prefkeys.dart';
 import 'package:pet/model/get_pet.dart';
 import 'package:pet/model/login.dart';
@@ -25,6 +26,9 @@ class Injector {
 
     streamController = StreamController.broadcast();
     getUserData();
+
+    authBloc.restoreSession();
+
   }
 
   static updateAuthData(String accessToken) async {

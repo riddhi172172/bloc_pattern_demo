@@ -63,10 +63,8 @@ class _HomeState extends State<HomePage> {
             child: IndexedStack(
               index: _currentIndex,
               children: [
-                AddPetName(),
-                ShowPets(),
-                AddEvent(),
                 EventPage(),
+                AddEvent(),
               ],
             ),
           ),
@@ -84,20 +82,12 @@ class _HomeState extends State<HomePage> {
         unselectedItemColor: Colors.grey,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            title: Text('Add pet'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.pets),
-            title: Text('Show Pet'),
+            icon: Icon(Icons.event),
+            title: Text('Show event'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add),
             title: Text('Add Event'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.event),
-            title: Text('Show event'),
           ),
         ],
       ),

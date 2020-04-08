@@ -9,6 +9,7 @@ import 'package:pet/helper/utils.dart';
 import 'package:pet/injection/dependency_injection.dart';
 import 'package:pet/model/get_event.dart';
 import 'package:pet/model/get_pet.dart';
+import 'package:pet/screens/add_pet_photo.dart';
 
 class ShowPets extends StatefulWidget {
   @override
@@ -30,23 +31,35 @@ class _ShowPetsState extends State<ShowPets> {
     return Scaffold(
       body: Column(
         children: <Widget>[
-         Expanded(
-           child:  StreamBuilder(
-               stream: getPetBloc.getPetDataOb,
-               builder: (context, AsyncSnapshot<List<PetData>> snapshot) {
-                 if (snapshot.connectionState == ConnectionState.waiting) {
-                   return Utils.showShimmer();
-                 } else if (snapshot.connectionState == ConnectionState.active) {
-                   if (snapshot.hasData)
-                     return showData(snapshot?.data);
-                   else
-                     Container();
-                 } else if (snapshot.hasError) {
-                   return Text(snapshot.error.toString());
-                 }
-                 return Container();
-               }),
-         ),
+          Expanded(
+            child: StreamBuilder(
+                stream: getPetBloc.getPetDataOb,
+                builder: (context, AsyncSnapshot<List<PetData>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Utils.showShimmer();
+                  } else if (snapshot.connectionState ==
+                      ConnectionState.active) {
+                    if (snapshot.hasData) if (snapshot.data.length > 0)
+                      return showData(snapshot?.data);
+                    else
+                      RaisedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AddPetPhoto()),
+                          );
+                        },
+                        icon: Icon(Icons.add),
+                      );
+                    else
+                      Container();
+                  } else if (snapshot.hasError) {
+                    return Text(snapshot.error.toString());
+                  }
+                  return Container();
+                }),
+          ),
         ],
       ),
     );
@@ -81,7 +94,10 @@ class _ShowPetsState extends State<ShowPets> {
         child: ListTile(
           leading: petEvent.petImage != null
               ? Image(
-                  image: NetworkImage(petEvent.petImage),width: 50,height: 50,fit: BoxFit.cover,
+                  image: NetworkImage(petEvent.petImage),
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
                 )
               : FlutterLogo(size: 72.0),
           title: Text(petEvent.name ?? ""),

@@ -19,7 +19,9 @@ Future setupLocator() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    authBloc.restoreSession();
+    Future.delayed(Duration(milliseconds: 10)).then((v) {
+      authBloc.restoreSession();
+    });
 
     return MaterialApp(
         title: 'Flutter Demo',

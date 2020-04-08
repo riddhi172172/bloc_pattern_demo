@@ -17,102 +17,121 @@ class AddEvent extends StatefulWidget {
 class _AddEventState extends State<AddEvent> {
   String imagePath;
   TextEditingController nameController = TextEditingController();
+  bool isLoading = false;
+
+  Widget loadingIndicator() => isLoading
+      ? Container(
+          child: CircularProgressIndicator(),
+        )
+      : Container();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        alignment: Alignment.center,
-        margin: EdgeInsets.all(20),
-        child: Column(
-          children: <Widget>[
-            InkResponse(
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.only(
-                        top: 10, left: 30, right: 10, bottom: 10),
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                        color: Colors.grey,
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                            image: imageShow(), fit: BoxFit.cover)),
-                  ),
-                  Positioned(
-                    right: 10,
-                    bottom: 20,
-                    child: InkResponse(
-                      child: Icon(
-                        Icons.add_a_photo,
-                        size: 25,
+      body: Stack(
+        children: <Widget>[
+          Container(
+            alignment: Alignment.center,
+            margin: EdgeInsets.all(20),
+            child: Column(
+              children: <Widget>[
+                InkResponse(
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(
+                            top: 10, left: 30, right: 10, bottom: 10),
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                            color: Colors.grey,
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                                image: imageShow(), fit: BoxFit.cover)),
                       ),
-                      onTap: () {
-                        getImage();
-                      },
-                    ),
-                  )
-                ],
-              ),
-              onTap: () {
-                getImage();
-              },
-            ),
-            TextField(
-              keyboardType: TextInputType.emailAddress,
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: "Comment",
-                hintText: "",
-              ),
-            ),
-            Container(
-              height: 35,
-              width: 100,
-              margin: EdgeInsets.only(top: 20.0),
-              padding: EdgeInsets.only(top: 8.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-                color: ColorRes.black,
-              ),
-              child: InkResponse(
-                child: Text(
-                  "NEXT",
-                  style: TextStyle(color: ColorRes.white),
-                  textAlign: TextAlign.center,
+                      Positioned(
+                        right: 10,
+                        bottom: 20,
+                        child: InkResponse(
+                          child: Icon(
+                            Icons.add_a_photo,
+                            size: 25,
+                          ),
+                          onTap: () {
+                            getImage();
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                  onTap: () {
+                    getImage();
+                  },
                 ),
-                onTap: () async {
-                  if (imagePath == null || imagePath.isEmpty) {
-                    Utils.showToast("Please select photo");
-                  } else {
-                    if (nameController.value != null &&
-                        nameController.value.text.toString().isNotEmpty) {
-                      await WebApi()
-                          .addEventData(WebApi.addEvent, File(imagePath),
-                              nameController.value.text.toString())
-                          .then((data) async {
-                        if (data != null) {
-                          PetEvent petEvent = PetEvent.fromJson(data);
-                          getEventBloc.getEvents();
-                          Utils.showToast("Event added successfully");
-                          nameController.text = "";
-                          imagePath = "";
+                TextField(
+                  keyboardType: TextInputType.emailAddress,
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: "Comment",
+                    hintText: "",
+                  ),
+                ),
+                Container(
+                  height: 35,
+                  width: 100,
+                  margin: EdgeInsets.only(top: 20.0),
+                  padding: EdgeInsets.only(top: 8.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    color: ColorRes.black,
+                  ),
+                  child: InkResponse(
+                    child: Text(
+                      "NEXT",
+                      style: TextStyle(color: ColorRes.white),
+                      textAlign: TextAlign.center,
+                    ),
+                    onTap: () async {
+                      if (imagePath == null || imagePath.isEmpty) {
+                        Utils.showToast("Please select photo");
+                      } else {
+                        if (nameController.value != null &&
+                            nameController.value.text.toString().isNotEmpty) {
                           setState(() {
+                            isLoading = true;
+                          });
 
+                          await WebApi()
+                              .addEventData(WebApi.addEvent, File(imagePath),
+                                  nameController.value.text.toString())
+                              .then((data) async {
+                            if (data != null) {
+                              PetEvent petEvent = PetEvent.fromJson(data);
+                              getEventBloc.getEvents();
+                              Utils.showToast("Event added successfully");
+                              nameController.text = "";
+                              imagePath = "";
+                              setState(() { isLoading = false;});
+                            }
+                          }).catchError((e) {
+                            Utils.showToast(e);
+                            setState(() {
+                              isLoading = false;
+                            });
                           });
                         }
-                      });
-                    }
-                  }
-                },
-              ),
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: Container(),
+                )
+              ],
             ),
-            Expanded(
-              child: Container(),
-            )
-          ],
-        ),
+          ),
+          loadingIndicator()
+        ],
       ),
     );
   }
