@@ -10,13 +10,13 @@ import 'package:pet/injection/dependency_injection.dart';
 import 'package:pet/model/get_event.dart';
 import 'package:pet/model/get_pet.dart';
 
-class EventPage extends StatefulWidget {
+class ShowPets extends StatefulWidget {
   @override
-  _EventPageState createState() => _EventPageState();
+  _ShowPetsState createState() => _ShowPetsState();
 }
 
-class _EventPageState extends State<EventPage> {
-  List<PetEvent> arrEvents = List();
+class _ShowPetsState extends State<ShowPets> {
+  List<PetData> arrEvents = List();
 
   @override
   void initState() {
@@ -29,32 +29,30 @@ class _EventPageState extends State<EventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-        children: <Widget>[showItems(context)],
+        children: <Widget>[
+         Expanded(
+           child:  StreamBuilder(
+               stream: getPetBloc.getPetDataOb,
+               builder: (context, AsyncSnapshot<List<PetData>> snapshot) {
+                 if (snapshot.connectionState == ConnectionState.waiting) {
+                   return Utils.showShimmer();
+                 } else if (snapshot.connectionState == ConnectionState.active) {
+                   if (snapshot.hasData)
+                     return showData(snapshot?.data);
+                   else
+                     Container();
+                 } else if (snapshot.hasError) {
+                   return Text(snapshot.error.toString());
+                 }
+                 return Container();
+               }),
+         ),
+        ],
       ),
     );
   }
 
-  showItems(BuildContext context) {
-    return Expanded(
-      child: StreamBuilder(
-          stream: getEventBloc.getEventsOb,
-          builder: (context, AsyncSnapshot<List<PetEvent>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Utils.showShimmer();
-            } else if (snapshot.connectionState == ConnectionState.active) {
-              if (snapshot.hasData)
-                return showData(snapshot?.data);
-              else
-                Container();
-            } else if (snapshot.hasError) {
-              return Text(snapshot.error.toString());
-            }
-            return Container();
-          }),
-    );
-  }
-
-  showData(List<PetEvent> data) {
+  showData(List<PetData> data) {
     arrEvents = data;
 
     return ListView.builder(
@@ -69,7 +67,7 @@ class _EventPageState extends State<EventPage> {
     return NetworkImage(petImage);
   }
 
-  showItem(PetEvent petEvent) {
+  showItem(PetData petEvent) {
     return InkResponse(
       child: Container(
         decoration: BoxDecoration(
@@ -81,13 +79,13 @@ class _EventPageState extends State<EventPage> {
             right: Utils.getDeviceWidth(context) / 15,
             top: Utils.getDeviceWidth(context) / 25),
         child: ListTile(
-          leading: petEvent.eventImage != null
+          leading: petEvent.petImage != null
               ? Image(
-                  image: NetworkImage(petEvent.eventImage),width: 50,height: 50,fit: BoxFit.cover,
+                  image: NetworkImage(petEvent.petImage),width: 50,height: 50,fit: BoxFit.cover,
                 )
               : FlutterLogo(size: 72.0),
-          title: Text(petEvent.comment ?? ""),
-          subtitle: Text(petEvent.comment ?? ""),
+          title: Text(petEvent.name ?? ""),
+          subtitle: Text(petEvent.name ?? ""),
           isThreeLine: true,
         ),
       ),
@@ -95,8 +93,8 @@ class _EventPageState extends State<EventPage> {
   }
 
   void getData() async {
-//    await getPetBloc.getPet();
-    await getEventBloc.getEvents();
+    await getPetBloc.getPet();
+//    await getEventBloc.getEvents();
   }
 
   Widget showPet(List<PetData> data) {

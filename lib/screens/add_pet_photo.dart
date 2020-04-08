@@ -30,8 +30,8 @@ class _AddPetPhotoState extends State<AddPetPhoto> {
               child: Stack(
                 children: <Widget>[
                   Container(
-                    margin:
-                    EdgeInsets.only(top: 30, left: 30, right: 10, bottom: 10),
+                    margin: EdgeInsets.only(
+                        top: 30, left: 30, right: 10, bottom: 10),
                     height: 140,
                     width: 140,
                     decoration: BoxDecoration(
@@ -75,13 +75,13 @@ class _AddPetPhotoState extends State<AddPetPhoto> {
                   if (imagePath == null || imagePath.isEmpty) {
                     Utils.showToast("Please select photo");
                   } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AddPetName(
-                            photo: imagePath,
-                          )),
-                    );
+//                    Navigator.push(
+//                      context,
+//                      MaterialPageRoute(
+//                          builder: (context) => AddPetName(
+//                                photo: imagePath,
+//                              )),
+//                    );
                   }
                 },
               ),

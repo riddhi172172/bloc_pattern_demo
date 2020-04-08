@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pet/bloc/auth_bloc.dart';
 import 'package:pet/helper/res.dart';
 import 'package:pet/screens/add_event.dart';
+import 'package:pet/screens/add_pet_name.dart';
+import 'package:pet/screens/add_pet_photo.dart';
 import 'package:pet/screens/login.dart';
 import 'package:pet/screens/show_event.dart';
+import 'package:pet/screens/show_pets.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -38,14 +41,12 @@ class _HomeState extends State<HomePage> {
             onPressed: () {
               authBloc.closeSession();
 
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginPage(),
-                    ),
-                    ModalRoute.withName("/home"));
-
-
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginPage(),
+                  ),
+                  ModalRoute.withName("/home"));
             },
           ),
         ],
@@ -57,8 +58,10 @@ class _HomeState extends State<HomePage> {
             child: IndexedStack(
               index: _currentIndex,
               children: [
-                EventPage(),
+                AddPetName(),
+                ShowPets(),
                 AddEvent(),
+                EventPage(),
               ],
             ),
           ),
@@ -71,15 +74,25 @@ class _HomeState extends State<HomePage> {
             _currentIndex = index;
           });
         },
-        backgroundColor: ColorRes.white,
+        backgroundColor: ColorRes.black,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            title: Text('Events'),
+            icon: Icon(Icons.add),
+            title: Text('Add pet'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            title: Text('Add event'),
+            icon: Icon(Icons.pets),
+            title: Text('Show Pet'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add),
+            title: Text('Add Event'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event),
+            title: Text('Show event'),
           ),
         ],
       ),

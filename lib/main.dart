@@ -35,13 +35,6 @@ class MyApp extends StatelessWidget {
   }
 
   createContent() {
-    return StreamBuilder<bool>(
-        stream: authBloc.isSessionValid,
-        builder: (context, AsyncSnapshot<bool> snapshot) {
-          if (snapshot.hasData && snapshot.data) {
-            return Injector.petData!=null?HomePage():AddPetPhoto();
-          }
-          return LoginPage();
-        });
+    return Injector.accessToken!=null?HomePage():LoginPage();
   }
 }
